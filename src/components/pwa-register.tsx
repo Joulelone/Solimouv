@@ -28,9 +28,20 @@ export function PwaRegister() {
       return;
     }
 
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
-    });
+    function registerWorker() {
+      navigator.serviceWorker
+        .register("/sw.js", {
+          scope: "/",
+          updateViaCache: "none",
+        })
+        .catch(() => {});
+    }
+
+    window.addEventListener("load", registerWorker);
+
+    return () => {
+      window.removeEventListener("load", registerWorker);
+    };
   }, []);
 
   return null;

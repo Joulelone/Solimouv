@@ -1,6 +1,12 @@
-const CACHE_NAME = "hackathon-tl-v1";
+const CACHE_NAME = "hackathon-tl-v2";
 const OFFLINE_URL = "/offline";
-const PRECACHE_URLS = ["/", OFFLINE_URL, "/manifest.json"];
+const PRECACHE_URLS = [
+  "/",
+  OFFLINE_URL,
+  "/manifest.webmanifest",
+  "/icon-192.png",
+  "/icon-512.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -32,6 +38,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
+  const staticDestinations = new Set(["style", "script", "image", "font"]);
 
   if (request.method !== "GET") {
     return;
@@ -56,7 +63,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  const staticDestinations = new Set(["style", "script", "image", "font"]);
   if (!staticDestinations.has(request.destination)) {
     event.respondWith(fetch(request).catch(() => caches.match(OFFLINE_URL)));
     return;

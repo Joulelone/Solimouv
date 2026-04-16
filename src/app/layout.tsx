@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import { PwaRegister } from "@/components/pwa-register";
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "Hackathon TL",
   description: "Socle MVP PWA avec Next.js et Firebase",
   applicationName: "Hackathon TL",
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -32,6 +32,10 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Hackathon TL",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#020617",
 };
 
 export default function RootLayout({

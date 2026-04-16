@@ -1,20 +1,66 @@
-# Hackathon TL - Socle MVP
+# Solimouv - Socle PWA MVP
 
-Base minimale en `Next.js + Firebase + PWA`.
+Socle technique minimal pour le hackathon, base sur `Next.js 16 + Firebase` avec PWA installable.
 
-## Ce qui est inclus
+## Objectif du repo
 
-- Landing page (`/`)
-- Auth Firebase (Google + email/mot de passe) (`/login`)
-- App protegee avec navigation:
-  - Dashboard (`/app/dashboard`)
-  - Items CRUD (`/app/items`)
-  - Parametres (`/app/settings`)
-- PWA installable (`manifest.json` + `sw.js` + page offline `/offline`)
+Ce repo couvre les attendus obligatoires cote dev:
 
-## 1) Variables d'environnement
+- PWA installable, responsive et deployable
+- base d'authentification Firebase (Google + email/mot de passe)
+- base Firestore (items utilisateur)
+- structure claire et instructions de reproduction
 
-Copie `.env.example` vers `.env.local` puis remplis:
+## Stack
+
+- Next.js `16.2.3` (App Router)
+- React `19`
+- TypeScript
+- Tailwind CSS `4`
+- Firebase Auth + Firestore
+
+## Structure
+
+```text
+src/
+  app/
+    layout.tsx
+    manifest.ts
+    page.tsx
+    offline/page.tsx
+    login/page.tsx
+    app/
+      layout.tsx
+      dashboard/page.tsx
+      items/page.tsx
+      settings/page.tsx
+  components/
+    auth-provider.tsx
+    auth-guard.tsx
+    app-shell.tsx
+    pwa-register.tsx
+  hooks/
+    use-user-items.ts
+  lib/
+    firebase.ts
+public/
+  sw.js
+  icon-192.png
+  icon-512.png
+firestore.rules
+```
+
+## Setup local
+
+### 1. Installation
+
+```bash
+npm install
+```
+
+### 2. Variables d'environnement
+
+Copie `.env.example` vers `.env.local` puis renseigne:
 
 ```bash
 NEXT_PUBLIC_FIREBASE_API_KEY=
@@ -25,25 +71,64 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 ```
 
-## 2) Lancer en local
+### 3. Firebase
+
+- activer `Authentication` (Google + Email/Password)
+- creer une base `Firestore`
+- publier les regles de `firestore.rules`
+
+### 4. Lancement
 
 ```bash
-npm install
 npm run dev
 ```
 
-## 3) Preparer Firebase
-
-- Active `Authentication` (Google + Email/Password)
-- Cree une base `Firestore`
-- Publie les regles de `firestore.rules`
-
-Ces regles autorisent seulement l'utilisateur connecte a lire/ecrire ses documents (`items`, `events`) via `createdBy`.
-
-## 4) Deployer sur Vercel
+## Scripts
 
 ```bash
+npm run dev
+npm run lint
+npm run build
+npm run start
+```
+
+## Validation des obligatoires
+
+### Socle PWA minimal
+
+- manifest App Router: `src/app/manifest.ts`
+- service worker: `public/sw.js`
+- page offline: `/offline`
+- metadata PWA: `src/app/layout.tsx`
+
+### Checks a executer avant rendu
+
+```bash
+npm run lint
 npm run build
 ```
 
-Puis connecte le dossier `web` a Vercel et ajoute les memes variables d'env.
+## Deployment (Vercel)
+
+1. Pousser le repo sur GitHub
+2. Importer le projet dans Vercel
+3. Ajouter les variables d'environnement Firebase (meme valeurs que `.env.local`)
+4. Deploy
+5. Verifier que l'URL publique charge correctement `/`, `/login`, `/app`
+
+## Verification PWA (navigateur)
+
+1. Ouvrir l'URL en production (HTTPS)
+2. Verifier l'installation de l'app (prompt navigateur ou menu "installer")
+3. Ouvrir DevTools > Application:
+   - Manifest detecte
+   - Service Worker actif (`/sw.js`)
+4. Passer en mode offline et verifier le fallback `/offline`
+
+## Support non-tech (groupe)
+
+- URL de demo partagee
+- procedure courte:
+  1. Se connecter
+  2. Aller dans Items
+  3. Ajouter/cocher/supprimer un item

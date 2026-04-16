@@ -7,6 +7,7 @@ Socle technique minimal pour le hackathon, base sur `Next.js 16 + Firebase` avec
 Ce repo couvre les attendus obligatoires cote dev:
 
 - PWA installable, responsive et deployable
+- pages SM-1: Accueil, A propos, Programme/Ateliers, Associations partenaires, Contact
 - base d'authentification Firebase (Google + email/mot de passe)
 - base Firestore (items utilisateur)
 - structure claire et instructions de reproduction
@@ -27,6 +28,10 @@ src/
     layout.tsx
     manifest.ts
     page.tsx
+    a-propos/page.tsx
+    programme/page.tsx
+    associations/page.tsx
+    contact/page.tsx
     offline/page.tsx
     login/page.tsx
     app/

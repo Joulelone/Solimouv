@@ -33,7 +33,7 @@ const partnerTypes = [
 
 export default function PartnersPage() {
   return (
-    <PublicSiteShell currentPath="/associations">
+    <PublicSiteShell>
       <section className="rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-8">
         <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
           Associations partenaires

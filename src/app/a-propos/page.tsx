@@ -20,7 +20,7 @@ const audiences = [
 
 export default function AboutPage() {
   return (
-    <PublicSiteShell currentPath="/a-propos">
+    <PublicSiteShell>
       <section className="rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-8">
         <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">A propos</p>
         <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">Up Sport! et Solimouv&apos;</h1>

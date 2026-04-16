@@ -3,7 +3,7 @@ import { PublicSiteShell } from "@/components/public-site-shell";
 
 export default function LandingPage() {
   return (
-    <PublicSiteShell currentPath="/">
+    <PublicSiteShell>
       <section className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 sm:p-10">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
           Festival Solimouv&apos;
@@ -28,6 +28,12 @@ export default function LandingPage() {
             className="inline-flex items-center justify-center rounded-xl border border-white/20 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
           >
             Nous contacter
+          </Link>
+          <Link
+            href="/passport"
+            className="inline-flex items-center justify-center rounded-xl border border-cyan-300/50 px-5 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-300/10"
+          >
+            Mon passeport
           </Link>
         </div>
       </section>
@@ -58,6 +64,11 @@ export default function LandingPage() {
           href="/contact"
           title="Contact"
           text="Poser une question, proposer un partenariat ou demander des informations."
+        />
+        <QuickLink
+          href="/passport"
+          title="Mon passeport QR"
+          text="Acceder a ton QR personnel, suivre ta progression et debloquer le lot final."
         />
       </section>
     </PublicSiteShell>

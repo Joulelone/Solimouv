@@ -2,22 +2,55 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
     match /items/{itemId} {
-      allow create: if request.auth != null
+      allow create: if signedIn()
         && request.resource.data.createdBy == request.auth.uid;
-      allow read: if request.auth != null
+      allow read: if signedIn()
         && resource.data.createdBy == request.auth.uid;
-      allow update, delete: if request.auth != null
+      allow update, delete: if signedIn()
         && resource.data.createdBy == request.auth.uid;
     }
 
     match /events/{eventId} {
-      allow create: if request.auth != null
+      allow create: if signedIn()
         && request.resource.data.createdBy == request.auth.uid;
-      allow read: if request.auth != null
+      allow read: if signedIn()
         && resource.data.createdBy == request.auth.uid;
-      allow update, delete: if request.auth != null
+      allow update, delete: if signedIn()
         && resource.data.createdBy == request.auth.uid;
+    }
+
+    match /passportScans/{scanId} {
+      allow get, list: if signedIn();
+
+      allow create: if signedIn()
+        && !exists(/databases/$(database)/documents/passportScans/$(scanId))
+        && request.resource.data.keys().hasOnly([
+          "userId",
+          "standId",
+          "standName",
+          "scannedBy",
+          "scannedByEmail",
+          "scannedAt"
+        ])
+        && request.resource.data.userId is string
+        && request.resource.data.userId.size() > 0
+        && request.resource.data.standId is string
+        && request.resource.data.standId.size() > 0
+        && request.resource.data.standName is string
+        && request.resource.data.standName.size() > 0
+        && request.resource.data.scannedBy == request.auth.uid
+        && (
+          request.resource.data.scannedByEmail == null
+          || request.resource.data.scannedByEmail is string
+        )
+        && request.resource.data.scannedAt == request.time;
+
+      allow update, delete: if false;
     }
 
     match /{document=**} {

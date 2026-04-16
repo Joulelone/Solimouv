@@ -10,6 +10,7 @@ Ce repo couvre les attendus obligatoires cote dev:
 - pages SM-1: Accueil, A propos, Programme/Ateliers, Associations partenaires, Contact
 - base d'authentification Firebase (Google + email/mot de passe)
 - base Firestore (items utilisateur)
+- mode evenement MVP: passeport QR participant + check-in stands + progression
 - structure claire et instructions de reproduction
 
 ## Stack
@@ -37,6 +38,8 @@ src/
     app/
       layout.tsx
       dashboard/page.tsx
+      passport/page.tsx
+      check-in/page.tsx
       items/page.tsx
       settings/page.tsx
   components/
@@ -54,6 +57,14 @@ public/
   icon-512.png
 firestore.rules
 ```
+
+## Mode evenement (MVP)
+
+- Chaque participant connecte dispose d'un QR personnel dans `/passport`
+- Les animateurs de stand scannent ce QR avec un telephone et ouvrent la page `/check-in?user=...`
+- L'animateur selectionne son stand puis valide la participation
+- La progression est visible en temps reel sur le passeport participant
+- Quand tous les stands sont valides, le message de lot est debloque
 
 ## Setup local
 

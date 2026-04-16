@@ -71,6 +71,30 @@ export default function DashboardPage() {
           </ul>
         )}
       </div>
+
+      <div className="mt-6 rounded-xl border border-white/10 bg-slate-950/40 p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">
+          Mode evenement
+        </h2>
+        <p className="mt-3 text-sm text-slate-300">
+          Active le passeport QR des participants et le check-in des stands pendant
+          le festival.
+        </p>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <Link
+            href="/passport"
+            className="inline-flex items-center justify-center rounded-lg bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
+          >
+            Ouvrir mon passeport
+          </Link>
+          <Link
+            href="/organisateur"
+            className="inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+          >
+            Ouvrir espace organisateur
+          </Link>
+        </div>
+      </div>
     </AppShell>
   );
 }

@@ -12,7 +12,11 @@ export function AuthGuard({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!loading && !user) {
-      const nextPath = encodeURIComponent(pathname || "/app");
+      const fullPath =
+        typeof window !== "undefined"
+          ? `${window.location.pathname}${window.location.search}`
+          : pathname || "/app";
+      const nextPath = encodeURIComponent(fullPath);
       router.replace(`/login?next=${nextPath}`);
     }
   }, [loading, pathname, router, user]);

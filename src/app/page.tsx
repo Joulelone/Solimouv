@@ -8,23 +8,14 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { auth } from "@/lib/firebase";
 
-type Workshop = {
+type FeaturedWorkshop = {
+  id: string;
   icon: string;
   title: string;
   schedule: string;
   badge: string;
   cardClassName: string;
   badgeClassName: string;
-};
-
-type Story = {
-  initials: string;
-  name: string;
-  age: string;
-  chips: string[];
-  quote: string;
-  avatarClassName: string;
-  chipClassName: string;
 };
 
 const baseLinks = [
@@ -36,76 +27,51 @@ const baseLinks = [
   { href: "/passport", label: "Mon passeport" },
 ];
 
-const workshops: Workshop[] = [
+const featuredWorkshops: FeaturedWorkshop[] = [
   {
+    id: "badminton",
     icon: "BD",
     title: "Badminton decouverte",
     schedule: "10h00 - Club Elan Nord",
     badge: "Debutants bienvenus",
-    cardClassName: "bg-[#0657F5] text-white",
+    cardClassName: "bg-[#0558F6] text-white",
     badgeClassName: "bg-white text-[#0558F6]",
   },
   {
+    id: "yoga",
     icon: "YG",
     title: "Yoga & mobilite",
     schedule: "11h30 - Zen Ensemble",
     badge: "Tous niveaux",
-    cardClassName: "bg-[#0AAD56] text-white",
+    cardClassName: "bg-[#05AD56] text-white",
     badgeClassName: "bg-white text-[#05AD56]",
   },
   {
-    icon: "BX",
-    title: "Boxe initiation",
+    id: "karate",
+    icon: "KR",
+    title: "Karate initiation",
     schedule: "14h00 - Gym Quartier Libre",
     badge: "Initiation",
     cardClassName: "bg-[#FF5C29] text-white",
     badgeClassName: "bg-white text-[#FF5C29]",
   },
   {
+    id: "velo",
     icon: "VL",
     title: "Velo adapte",
     schedule: "15h30 - Roues pour Tous",
     badge: "Handisport",
-    cardClassName: "bg-[#7F00B1] text-white",
-    badgeClassName: "bg-white text-[#7F00B1]",
-  },
-  {
-    icon: "NT",
-    title: "Natation libre",
-    schedule: "16h00 - Aqua Solidaire",
-    badge: "Famille",
     cardClassName: "bg-[#FF8DA4] text-white",
     badgeClassName: "bg-white text-[#FF8DA4]",
   },
-];
-
-const stories: Story[] = [
   {
-    initials: "AM",
-    name: "Amara",
-    age: "22 ans",
-    chips: ["Yoga", "Refugiee"],
-    quote: "Je n avais jamais pense que le sport pouvait m aider autant.",
-    avatarClassName: "bg-[#FFDF3C] text-[#111111]",
-    chipClassName: "bg-[#FFDF3C21] text-[#D3AF00]",
-  },
-  {
-    initials: "TH",
-    name: "Theo",
-    age: "17 ans",
-    chips: ["Velo adapte", "Handisport"],
-    quote: "Le velo adapte m a montre que mes limites c est moi qui les fixe.",
-    avatarClassName: "bg-[#FF5C29] text-white",
-    chipClassName: "bg-[#FF5C2921] text-[#FF5C29]",
-  },
-  {
-    initials: "FA",
-    name: "Fatou",
-    age: "24 ans",
-    chips: ["Boxe", "Quartier prioritaire"],
-    quote: "J avais peur du regard des autres. La bas, personne ne juge.",
-    avatarClassName: "bg-[#7F00B1] text-white",
-    chipClassName: "bg-[#7F00B121] text-[#7F00B1]",
+    id: "basket",
+    icon: "BK",
+    title: "Basket initiation",
+    schedule: "16h00 - Aqua Solidaire",
+    badge: "Famille",
+    cardClassName: "bg-[#7F00B1] text-white",
+    badgeClassName: "bg-white text-[#7F00B1]",
   },
 ];
 
@@ -150,6 +116,79 @@ const eventSchema = {
   },
 };
 
+function MobileMenuIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 6h18" />
+      <path d="M3 12h18" />
+      <path d="M3 18h18" />
+    </svg>
+  );
+}
+
+function ArrowIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className ?? "h-5 w-5"}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </svg>
+  );
+}
+
+function HomeIcon({ active }: { active?: boolean }) {
+  const stroke = active ? "#0558F6" : "#9E9E9E";
+  return (
+    <svg viewBox="0 0 22 22" className="h-[22px] w-[22px]" fill="none" stroke={stroke} strokeWidth="1.8">
+      <path d="M3 10.2 11 3l8 7.2v8.3a.8.8 0 0 1-.8.8H3.8a.8.8 0 0 1-.8-.8V10.2Z" />
+      <path d="M8.5 19v-6h5v6" />
+    </svg>
+  );
+}
+
+function PassIcon({ active }: { active?: boolean }) {
+  const stroke = active ? "#0558F6" : "#9E9E9E";
+  return (
+    <svg viewBox="0 0 22 22" className="h-[22px] w-[22px]" fill="none" stroke={stroke} strokeWidth="1.8">
+      <rect x="2.5" y="3.5" width="17" height="15" rx="2.5" />
+      <path d="M12.5 3.5v15" />
+      <circle cx="15.8" cy="8.5" r="0.7" fill={stroke} stroke="none" />
+      <circle cx="15.8" cy="11" r="0.7" fill={stroke} stroke="none" />
+      <circle cx="15.8" cy="13.5" r="0.7" fill={stroke} stroke="none" />
+    </svg>
+  );
+}
+
+function ProgramIcon({ active }: { active?: boolean }) {
+  const stroke = active ? "#0558F6" : "#9E9E9E";
+  return (
+    <svg viewBox="0 0 22 22" className="h-[22px] w-[22px]" fill="none" stroke={stroke} strokeWidth="1.8">
+      <rect x="2.5" y="3.5" width="17" height="15" rx="2.5" />
+      <path d="M2.5 8h17" />
+      <path d="M7 1.8v3.4M15 1.8v3.4" />
+      <path d="M6.5 11.2h3M12.5 11.2h3M6.5 14.8h3M12.5 14.8h3" />
+    </svg>
+  );
+}
+
+function MapIcon({ active }: { active?: boolean }) {
+  const stroke = active ? "#0558F6" : "#9E9E9E";
+  return (
+    <svg viewBox="0 0 22 22" className="h-[22px] w-[22px]" fill="none" stroke={stroke} strokeWidth="1.8">
+      <path d="M3 4.3 8.8 2l4.4 2 5.8-2.3v16l-5.8 2.3-4.4-2L3 20.3v-16Z" />
+      <path d="M8.8 2v16M13.2 4v16" />
+    </svg>
+  );
+}
+
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
@@ -171,7 +210,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#EFECEF] text-[#111111]">
+    <div className="min-h-screen bg-[#f2f2f2] text-[#111111]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
@@ -180,262 +219,250 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }}
       />
-      <div className="w-full bg-white">
-        <header className="relative z-20 border-b border-[#E0E0E0] bg-white">
-          <div className="relative h-[141px] px-5 lg:hidden">
-            <p className="pt-6 text-xs text-[#B5B5B5]">Home</p>
-            <div className="mt-3 flex items-center justify-between">
-              <div className="w-8" />
-              <Link href="/" className="inline-flex">
-                <Image
-                  src="/figma-logo.svg"
-                  alt="Logo Solimouv"
-                  width={151}
-                  height={54}
-                  priority
-                />
-              </Link>
-              <button
-                type="button"
-                onClick={() => setMenuOpen((state) => !state)}
-                className="inline-flex h-8 w-8 items-center justify-center text-[#111111]"
-                aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-                aria-expanded={menuOpen}
-              >
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  {menuOpen ? (
-                    <path d="M18 6 6 18M6 6l12 12" />
-                  ) : (
-                    <>
-                      <path d="M3 6h18" />
-                      <path d="M3 12h18" />
-                      <path d="M3 18h18" />
-                    </>
-                  )}
-                </svg>
-              </button>
-            </div>
-          </div>
 
-          <div className="hidden h-[92px] items-center gap-6 px-8 xl:px-12 lg:flex">
-            <Link href="/" className="shrink-0">
-              <Image src="/figma-logo.svg" alt="Logo Solimouv" width={170} height={60} priority />
+      <header className="relative z-20 border-b border-[#E0E0E0] bg-white">
+        <div className="relative h-[104px] px-4 lg:hidden">
+          <div className="pt-3" />
+          <div className="mt-3 flex items-center justify-between">
+            <div className="w-8" />
+            <Link href="/" className="inline-flex">
+              <Image src="/figma-logo.svg" alt="Logo Solimouv" width={140} height={50} priority />
             </Link>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((state) => !state)}
+              className="inline-flex h-8 w-8 items-center justify-center text-[#111111]"
+              aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={menuOpen}
+            >
+              <MobileMenuIcon />
+            </button>
+          </div>
+        </div>
 
-            <nav className="min-w-0 flex-1" aria-label="Navigation principale">
-              <ul className="flex items-center gap-1 overflow-x-auto pb-1 text-sm">
-                {links.map((link) => {
-                  const active = pathname === link.href;
-                  return (
-                    <li key={link.href} className="shrink-0">
-                      <Link
-                        href={link.href}
-                        className={`inline-flex rounded-full px-4 py-2 font-medium transition ${
-                          active ? "bg-[#0558F6] text-white" : "text-[#111111] hover:bg-[#F2F2F2]"
-                        }`}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </nav>
+        <div className="hidden h-[92px] items-center gap-6 px-8 xl:px-12 lg:flex">
+          <Link href="/" className="shrink-0">
+            <Image src="/figma-logo.svg" alt="Logo Solimouv" width={170} height={60} priority />
+          </Link>
 
-            <div className="shrink-0">
-              {user ? (
-                <div className="flex items-center gap-3">
-                  <p className="max-w-[220px] truncate text-xs text-[#8A8A8A]">{user.email}</p>
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="rounded-full border border-[#D1D5DB] px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#F2F2F2]"
+          <nav className="min-w-0 flex-1" aria-label="Navigation principale">
+            <ul className="flex items-center gap-1 overflow-x-auto pb-1 text-sm">
+              {links.map((link) => {
+                const active = pathname === link.href;
+                return (
+                  <li key={link.href} className="shrink-0">
+                    <Link
+                      href={link.href}
+                      className={`inline-flex rounded-full px-4 py-2 font-medium transition ${
+                        active ? "bg-[#0558F6] text-white" : "text-[#111111] hover:bg-[#F2F2F2]"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <div className="shrink-0">
+            {user ? (
+              <div className="flex items-center gap-3">
+                <p className="max-w-[220px] truncate text-xs text-[#8A8A8A]">{user.email}</p>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="rounded-full border border-[#D1D5DB] px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#F2F2F2]"
+                >
+                  Se deconnecter
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="inline-flex rounded-full border border-[#D1D5DB] px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#F2F2F2]"
+              >
+                Connexion
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {menuOpen ? (
+          <div className="border-t border-[#E0E0E0] bg-white px-5 py-4 lg:hidden">
+            <ul className="space-y-1">
+              {links.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`block rounded-xl px-3 py-2 text-sm font-medium ${
+                      pathname === link.href ? "bg-[#F2F2F2] text-[#0558F6]" : "text-[#111111]"
+                    }`}
                   >
-                    Se deconnecter
-                  </button>
-                </div>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 border-t border-[#E0E0E0] pt-4">
+              {user ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    void handleSignOut();
+                  }}
+                  className="rounded-full border border-[#D1D5DB] px-4 py-2 text-sm font-semibold text-[#111111]"
+                >
+                  Se deconnecter
+                </button>
               ) : (
                 <Link
                   href="/login"
-                  className="inline-flex rounded-full border border-[#D1D5DB] px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#F2F2F2]"
+                  onClick={() => setMenuOpen(false)}
+                  className="inline-flex rounded-full border border-[#D1D5DB] px-4 py-2 text-sm font-semibold text-[#111111]"
                 >
                   Connexion
                 </Link>
               )}
             </div>
           </div>
+        ) : null}
+      </header>
 
-          {menuOpen ? (
-            <div className="border-t border-[#E0E0E0] bg-white px-5 py-4 lg:hidden">
-              <ul className="space-y-1">
-                {links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      onClick={() => setMenuOpen(false)}
-                      className={`block rounded-xl px-3 py-2 text-sm font-medium ${
-                        pathname === link.href ? "bg-[#F2F2F2] text-[#0558F6]" : "text-[#111111]"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-4 border-t border-[#E0E0E0] pt-4">
-                {user ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      void handleSignOut();
-                    }}
-                    className="rounded-full border border-[#D1D5DB] px-4 py-2 text-sm font-semibold text-[#111111]"
-                  >
-                    Se deconnecter
-                  </button>
-                ) : (
-                  <Link
-                    href="/login"
-                    onClick={() => setMenuOpen(false)}
-                    className="inline-flex rounded-full border border-[#D1D5DB] px-4 py-2 text-sm font-semibold text-[#111111]"
-                  >
-                    Connexion
-                  </Link>
-                )}
-              </div>
-            </div>
-          ) : null}
-        </header>
-
-        <main className="pb-[86px] lg:pb-0">
-          <section className="relative h-[517px] overflow-hidden rounded-b-[20px] bg-[#6B5AA0] lg:h-[clamp(360px,42vw,620px)] lg:rounded-none">
-            <Image
-              src="/figma-rectangle.svg"
-              alt="Visuel hero Solimouv"
-              fill
-              priority
-              className="object-cover object-center lg:object-contain lg:object-center"
-              sizes="100vw"
-            />
-          </section>
-
-          <section className="bg-[#FADDDD] px-5 pb-11 pt-9 lg:px-12 lg:py-14">
-            <p className="mx-auto max-w-[760px] text-center text-[30px] font-medium leading-tight lg:text-[36px]">
-              Decouvre un terrain de jeu ou personne n est sur la touche.
-            </p>
-            <div className="mt-5 flex justify-center">
+      <main className="pb-[84px] lg:pb-0">
+        <section className="px-4 pb-10 pt-6 lg:px-12 lg:pb-14 lg:pt-10">
+          <div className="mx-auto w-full max-w-[1280px] lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
+            <div className="max-w-[560px]">
+              <h1 className="text-[38px] font-medium italic leading-6 text-[#FF5C29] lg:text-[52px] lg:leading-[52px]">
+                LE SPORT POUR TOUS
+              </h1>
+              <p className="mt-5 text-[16px] leading-6 text-[#1C1B1B]">
+                Le premier festival inclusif qui celebre le mouvement sous toutes ses formes.
+                Decouvrez des ateliers adaptes et trouvez votre passion.
+              </p>
               <Link
-                href="/passport"
-                className="inline-flex h-10 min-w-[215px] items-center justify-center rounded-full bg-[#FF5C29] px-6 text-lg font-semibold text-white transition hover:brightness-95 lg:h-12 lg:min-w-[280px]"
+                href="/a-propos"
+                className="mt-5 inline-flex items-center gap-2 rounded-[16px] bg-[#FF5C29] px-4 py-2 text-[16px] font-medium text-white transition hover:brightness-95"
               >
-                C est quoi Solimouv ?
+                <span>A propos de nous</span>
+                <ArrowIcon className="h-[18px] w-[18px]" />
               </Link>
             </div>
-          </section>
 
-          <section className="px-5 pb-10 pt-12 lg:px-12 lg:pt-14">
-            <h2 className="text-[34px] font-bold leading-tight lg:text-[42px]">
-              Les ateliers du festival
+            <div className="relative mx-auto mt-7 h-[315px] w-[320px] lg:mt-0 lg:h-[410px] lg:w-[420px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/figma-rectangle.svg"
+                alt="Atelier basket fauteuil"
+                className="h-full w-full rotate-[8deg] rounded-[20px] object-cover shadow-[0_12px_26px_rgba(0,0,0,0.2)]"
+              />
+              <div className="absolute bottom-8 left-8 rotate-[8deg] rounded-[8px] bg-white px-4 py-2 shadow-md">
+                <p className="text-[14px] italic leading-6 text-[#1C1B1B]">Prochain depart</p>
+                <p className="text-[20px] font-medium leading-[16.5px] text-black">Atelier basket fauteuil</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 pb-8 lg:px-12">
+          <div className="mx-auto w-full max-w-[1280px]">
+            <h2 className="text-[20px] font-medium leading-[16.5px] text-[#111111] lg:text-[34px] lg:leading-[38px]">
+              Trouver mon sport
             </h2>
-            <div className="-mx-5 mt-4 overflow-x-auto px-5 pb-2 lg:mx-0 lg:px-0">
-              <div className="flex w-max gap-3 lg:grid lg:w-full lg:grid-cols-3 xl:grid-cols-5">
-                {workshops.map((workshop) => (
+            <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <p className="max-w-[620px] text-[16px] leading-6 text-black">
+                Notre algorithme vous connecte aux activites parfaites pour vos capacites.
+              </p>
+              <Link
+                href="/programme"
+                className="inline-flex items-center gap-2 text-[16px] font-medium text-[#FF5C29] transition hover:opacity-85"
+              >
+                <span>Voir tous les sports</span>
+                <ArrowIcon className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 pb-8 lg:px-12 lg:pb-10">
+          <div className="mx-auto w-full max-w-[1280px]">
+            <h2 className="text-[20px] font-medium leading-[16.5px] text-[#111111] lg:text-[34px] lg:leading-[38px]">
+              Atelier a la une
+            </h2>
+            <div className="-mx-4 mt-5 overflow-x-auto px-4 pb-2 lg:mx-0 lg:px-0">
+              <div className="flex w-max gap-4 lg:grid lg:w-full lg:grid-cols-3 xl:grid-cols-5">
+                {featuredWorkshops.map((workshop) => (
                   <article
-                    key={workshop.title}
-                    className={`h-[170px] w-[174px] rounded-[20px] border border-[#E0E0E0] px-[15px] py-[18px] lg:w-auto ${workshop.cardClassName}`}
+                    key={workshop.id}
+                    className={`h-[170px] w-[191px] rounded-[16px] px-4 py-[18px] ${workshop.cardClassName}`}
                   >
-                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-xs font-bold">
+                    <span className="inline-flex h-[41px] w-[41px] items-center justify-center rounded-full bg-white/20 text-xs font-bold">
                       {workshop.icon}
                     </span>
-                    <h3 className="mt-3 text-sm font-bold leading-[18px]">{workshop.title}</h3>
-                    <p className="mt-1 text-xs text-white/90">{workshop.schedule}</p>
-                    <span className={`mt-5 inline-flex h-[22px] items-center rounded-full px-[10px] text-[11px] font-medium ${workshop.badgeClassName}`}>
+                    <h3 className="mt-3 text-[16px] font-medium leading-6">{workshop.title}</h3>
+                    <p className="text-[12px] leading-[18px] text-white/90">{workshop.schedule}</p>
+                    <span
+                      className={`mt-3 inline-flex h-[22px] w-full items-center justify-center rounded-[20px] px-[10px] text-[12px] font-medium ${workshop.badgeClassName}`}
+                    >
                       {workshop.badge}
                     </span>
                   </article>
                 ))}
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section className="rounded-t-[20px] bg-[#FADDDD] px-5 pb-10 pt-8 lg:px-12 lg:py-12">
-            <h2 className="text-[20px] font-bold lg:text-[36px]">Ils ont trouve leur sport</h2>
-            <p className="mt-1 text-[13px] text-[#777777] lg:text-base">
-              Des parcours qui nous ressemblent
-            </p>
-            <div className="mt-4 grid gap-3 lg:grid-cols-3">
-              {stories.map((story) => (
-                <article key={`${story.name}-${story.age}`} className="rounded-xl border border-[#E0E0E0] bg-white px-4 pb-4 pt-[17px]">
-                  <div className="flex items-center gap-3">
-                    <span className={`inline-flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold ${story.avatarClassName}`}>
-                      {story.initials}
-                    </span>
-                    <div>
-                      <p className="text-[14px] font-semibold">
-                        {story.name}, {story.age}
-                      </p>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {story.chips.map((chip) => (
-                          <span key={chip} className={`inline-flex h-[20px] items-center rounded-full px-2 text-[11px] ${story.chipClassName}`}>
-                            {chip}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <p className="mt-3 text-[13px] italic leading-5 text-[#9E9E9E]">{story.quote}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section className="bg-[#0558F6] px-5 pb-5 pt-5 lg:px-12 lg:pb-10 lg:pt-9">
-            <h2 className="text-[18px] font-bold text-white lg:text-[30px]">
-              Restez informes du festival
-            </h2>
-            <form className="mt-4 grid gap-[10px] lg:max-w-[520px]">
-              <input
-                type="email"
-                placeholder="Votre email"
-                className="h-12 w-full rounded-[8px] border border-white bg-white px-[14px] text-sm text-[#111111] placeholder:text-[#11111180] focus:outline-none focus:ring-2 focus:ring-white/60"
-              />
-              <button type="button" className="h-11 w-full rounded-full bg-[#FF5C29] text-sm font-semibold text-white transition hover:brightness-95">
-                S inscrire
-              </button>
-            </form>
-          </section>
-        </main>
-
-        <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#E0E0E0] bg-white lg:hidden">
-          <ul className="mx-auto grid h-[72px] w-full max-w-[390px] grid-cols-4 px-2">
-            <li className="flex">
-              <Link href="/" className="flex flex-1 flex-col items-center justify-center gap-1 text-[11px] font-semibold text-[#0558F6]">
-                <span className="text-sm">ACC</span>
-                Accueil
-              </Link>
-            </li>
-            <li className="flex">
-              <Link href="/passport" className="flex flex-1 flex-col items-center justify-center gap-1 text-[11px] text-[#9E9E9E]">
-                <span className="text-sm">PAS</span>
-                Mon Pass
-              </Link>
-            </li>
-            <li className="flex">
-              <Link href="/programme" className="flex flex-1 flex-col items-center justify-center gap-1 text-[11px] text-[#9E9E9E]">
-                <span className="text-sm">PRO</span>
-                Programme
-              </Link>
-            </li>
-            <li className="flex">
-              <Link href="/contact" className="flex flex-1 flex-col items-center justify-center gap-1 text-[11px] text-[#9E9E9E]">
-                <span className="text-sm">MAP</span>
+        <section className="px-4 pb-8 lg:px-12 lg:pb-12">
+          <div className="mx-auto w-full max-w-[1280px]">
+            <article className="max-w-[620px] rounded-[16px] bg-[#C6DFF6] px-5 py-5">
+              <h2 className="text-[32px] font-medium leading-[16.5px] text-black lg:text-[34px] lg:leading-[38px]">
                 Carte
+              </h2>
+              <p className="mt-3 text-[16px] leading-6 text-black">
+                Notre algorithme vous connecte aux activites parfaites pour vos capacites.
+              </p>
+              <Link
+                href="/contact"
+                className="mt-4 inline-flex rounded-[16px] bg-[#0558F6] px-4 py-2 text-[16px] font-medium text-white transition hover:brightness-95"
+              >
+                Ouvrir la carte
               </Link>
-            </li>
-          </ul>
-        </nav>
-      </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#e0e0e0] bg-white lg:hidden">
+        <ul className="mx-auto flex h-[72px] w-full max-w-[640px] items-center justify-between px-[15.7px] sm:px-8">
+          <li className="h-[59px] w-[60px]">
+            <Link href="/" className="flex h-full flex-col items-center justify-center gap-[3.75px] px-3 pb-2 pt-[8.25px]">
+              <HomeIcon active />
+              <span className="text-[11px] font-semibold leading-[16.5px] text-[#0558f6]">Accueil</span>
+            </Link>
+          </li>
+          <li className="h-[59px] w-[71px]">
+            <Link href="/passport" className="flex h-full flex-col items-center justify-center gap-[3.75px] px-3 pb-2 pt-[8.25px]">
+              <PassIcon />
+              <span className="text-[11px] leading-[16.5px] text-[#9e9e9e]">Mon Pass</span>
+            </Link>
+          </li>
+          <li className="h-[59px] w-[81px]">
+            <Link href="/programme" className="flex h-full flex-col items-center justify-center gap-[3.75px] px-3 pb-2 pt-[8.25px]">
+              <ProgramIcon />
+              <span className="text-[11px] leading-[16.5px] text-[#9e9e9e]">Programme</span>
+            </Link>
+          </li>
+          <li className="h-[59px] w-[52px]">
+            <Link href="/contact" className="flex h-full flex-col items-center justify-center gap-[3.75px] px-3 pb-2 pt-[8.25px]">
+              <MapIcon />
+              <span className="text-[11px] leading-[16.5px] text-[#9e9e9e]">Carte</span>
+            </Link>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 }

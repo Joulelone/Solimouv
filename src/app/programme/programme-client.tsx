@@ -4,29 +4,22 @@ import { signOut } from "firebase/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { MobileBurgerMenu } from "@/components/mobile-burger-menu";
 import { auth } from "@/lib/firebase";
-
-type FilterId =
-  | "all"
-  | "morning"
-  | "afternoon"
-  | "evening"
-  | "beginner"
-  | "handisport"
-  | "family";
-
-type Activity = {
-  id: string;
-  time: string;
-  title: string;
-  place: string;
-  badge: string;
-  badgeColor: string;
-  tags: FilterId[];
-};
+import {
+  defaultProgrammeActivityIds,
+  normalizeProgrammeActivityIds,
+  programmeActivities,
+  programmeFilters,
+  type ProgrammeActivityId,
+  type ProgrammeFilterId,
+} from "@/lib/programme-data";
+import {
+  buildProgrammeSelectionParam,
+  writeProgrammeSelectionToStorage,
+} from "@/lib/programme-selection";
 
 const baseLinks = [
   { href: "/", label: "Accueil" },
@@ -36,66 +29,6 @@ const baseLinks = [
   { href: "/contact", label: "Contact" },
   { href: "/passport", label: "Mon passeport" },
 ];
-
-const filters: Array<{ id: FilterId; label: string }> = [
-  { id: "all", label: "Tout" },
-  { id: "morning", label: "Matin" },
-  { id: "afternoon", label: "Apres-midi" },
-  { id: "evening", label: "Soir" },
-  { id: "beginner", label: "Debutants" },
-  { id: "handisport", label: "Handisport" },
-  { id: "family", label: "Famille" },
-];
-
-const activities: Activity[] = [
-  {
-    id: "badminton",
-    time: "10h00",
-    title: "Badminton decouverte",
-    place: "Club Elan Nord - Terrain B",
-    badge: "Debutants bienvenus",
-    badgeColor: "bg-[#0558f6]",
-    tags: ["morning", "beginner"],
-  },
-  {
-    id: "yoga",
-    time: "11h30",
-    title: "Yoga & mobilite",
-    place: "Zen Ensemble - Espace vert",
-    badge: "Tous niveaux",
-    badgeColor: "bg-[#05ad56]",
-    tags: ["morning"],
-  },
-  {
-    id: "basket",
-    time: "14h00",
-    title: "Basket initiation",
-    place: "Gym Quartier Libre - Salle couverte",
-    badge: "Initiation",
-    badgeColor: "bg-[#ff5c29]",
-    tags: ["afternoon", "beginner"],
-  },
-  {
-    id: "velo",
-    time: "15h30",
-    title: "Velo adapte",
-    place: "Roues pour Tous - Allee principale",
-    badge: "Handisport",
-    badgeColor: "bg-[#7f00b1]",
-    tags: ["afternoon", "handisport"],
-  },
-  {
-    id: "natation",
-    time: "16h00",
-    title: "Natation libre",
-    place: "Aqua Solidaire - Piscine",
-    badge: "Famille",
-    badgeColor: "bg-[#ff8da4]",
-    tags: ["evening", "family"],
-  },
-];
-
-const defaultSelectedIds = new Set(["badminton", "yoga"]);
 
 function MobileMenuIcon() {
   return (
@@ -173,22 +106,40 @@ export function ProgrammeClient() {
   const pathname = usePathname();
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<FilterId>("all");
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set(defaultSelectedIds));
+  const [activeFilter, setActiveFilter] = useState<ProgrammeFilterId>("all");
+  const [selectedIds, setSelectedIds] = useState<Set<ProgrammeActivityId>>(
+    () => new Set(defaultProgrammeActivityIds),
+  );
 
-  const links = user
-    ? [...baseLinks, { href: "/organisateur", label: "Espace organisateur" }, { href: "/app/dashboard", label: "Dashboard" }]
-    : baseLinks;
+  const links = useMemo(() => {
+    if (user) {
+      return [
+        ...baseLinks,
+        { href: "/organisateur", label: "Espace organisateur" },
+        { href: "/app/dashboard", label: "Dashboard" },
+      ];
+    }
+    return baseLinks;
+  }, [user]);
+
+  const selectedOrderedIds = useMemo(
+    () => normalizeProgrammeActivityIds(selectedIds),
+    [selectedIds],
+  );
 
   const filteredActivities = useMemo(() => {
     if (activeFilter === "all") {
-      return activities;
+      return programmeActivities;
     }
-    return activities.filter((activity) => activity.tags.includes(activeFilter));
+    return programmeActivities.filter((activity) => activity.tags.includes(activeFilter));
   }, [activeFilter]);
 
-  const selectedCount = selectedIds.size;
+  const selectedCount = selectedOrderedIds.length;
   const remaining = Math.max(0, 3 - selectedCount);
+
+  useEffect(() => {
+    writeProgrammeSelectionToStorage(selectedOrderedIds);
+  }, [selectedOrderedIds]);
 
   async function handleSignOut() {
     if (auth) {
@@ -197,7 +148,7 @@ export function ProgrammeClient() {
     router.push("/");
   }
 
-  function toggleActivity(id: string) {
+  function toggleActivity(id: ProgrammeActivityId) {
     setSelectedIds((current) => {
       const next = new Set(current);
       if (next.has(id)) {
@@ -207,6 +158,17 @@ export function ProgrammeClient() {
       }
       return next;
     });
+  }
+
+  function handleCreateProgramme() {
+    const params = new URLSearchParams();
+    const selection = buildProgrammeSelectionParam(selectedOrderedIds);
+    if (selection) {
+      params.set("activities", selection);
+    }
+
+    const query = params.toString();
+    router.push(query ? `/programme/mon-programme?${query}` : "/programme/mon-programme");
   }
 
   return (
@@ -280,7 +242,6 @@ export function ProgrammeClient() {
             )}
           </div>
         </div>
-
       </header>
       <MobileBurgerMenu
         open={menuOpen}
@@ -297,7 +258,7 @@ export function ProgrammeClient() {
 
       <section className="overflow-x-auto bg-[#f2f2f2] px-5 py-4 lg:px-8 xl:px-12">
         <ul className="flex w-max gap-2 lg:w-full lg:flex-wrap">
-          {filters.map((filter) => {
+          {programmeFilters.map((filter) => {
             const active = activeFilter === filter.id;
             return (
               <li key={filter.id}>
@@ -370,12 +331,13 @@ export function ProgrammeClient() {
 
       <section className="border-t border-[#e0e0e0] bg-[#f2f2f2] px-5 pb-5 pt-3 lg:px-8 xl:px-12">
         <div className="mx-auto w-full lg:mx-0 lg:max-w-[480px]">
-          <Link
-            href="/programme/mon-programme"
+          <button
+            type="button"
+            onClick={handleCreateProgramme}
             className="inline-flex h-[52px] w-full items-center justify-center rounded-full bg-[#0558f6] text-[16px] font-medium leading-6 text-white"
           >
             {"Creer mon programme ->"}
-          </Link>
+          </button>
           <p className="mt-2 text-center text-[11px] leading-[16.5px] text-[#9e9e9e]">
             {selectedCount} activites - modifiable a tout moment
           </p>

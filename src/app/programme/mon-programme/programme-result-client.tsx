@@ -3,18 +3,23 @@
 import { signOut } from "firebase/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { MobileBurgerMenu } from "@/components/mobile-burger-menu";
 import { auth } from "@/lib/firebase";
-
-type ProgramItem = {
-  id: string;
-  time: string;
-  title: string;
-  place: string;
-};
+import {
+  defaultProgrammeActivityIds,
+  getProgrammeActivityById,
+  normalizeProgrammeActivityIds,
+  programmeActivities,
+  type ProgrammeActivity,
+  type ProgrammeActivityId,
+} from "@/lib/programme-data";
+import {
+  resolveProgrammeSelection,
+  writeProgrammeSelectionToStorage,
+} from "@/lib/programme-selection";
 
 const baseLinks = [
   { href: "/", label: "Accueil" },
@@ -23,21 +28,6 @@ const baseLinks = [
   { href: "/associations", label: "Associations" },
   { href: "/contact", label: "Contact" },
   { href: "/passport", label: "Mon passeport" },
-];
-
-const timelineItems: ProgramItem[] = [
-  {
-    id: "badminton-double",
-    time: "10h00 - 11h00",
-    title: "Badminton en double",
-    place: "Gymnase Jean Jaures",
-  },
-  {
-    id: "yoga-flow",
-    time: "11h30 - 12h30",
-    title: "Yoga Flow",
-    place: "Parc Central, Zone B",
-  },
 ];
 
 function MobileMenuIcon() {
@@ -121,7 +111,7 @@ function MapLinkIcon() {
   );
 }
 
-function TimelineCard({ item }: { item: ProgramItem }) {
+function TimelineCard({ item }: { item: ProgrammeActivity }) {
   return (
     <div className="relative">
       <div className="absolute -left-[30px] top-6 flex h-6 w-6 items-center justify-center rounded-full border-4 border-[#F6F3F2] bg-[#0558F6]">
@@ -130,10 +120,8 @@ function TimelineCard({ item }: { item: ProgramItem }) {
       <article className="rounded-[28px] bg-[#FCF9F8] p-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[14px] font-semibold leading-5 text-[#0558F6]">{item.time}</p>
-            <h3 className="mt-1 text-[20px] font-semibold leading-6 text-[#1C1B1B]">
-              {item.title}
-            </h3>
+            <p className="text-[14px] font-semibold leading-5 text-[#0558F6]">{item.timeRange}</p>
+            <h3 className="mt-1 text-[20px] font-semibold leading-6 text-[#1C1B1B]">{item.title}</h3>
           </div>
           <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(0,109,52,0.1)] px-3 py-1 text-xs font-bold text-[#006D34]">
             Ajoute
@@ -141,7 +129,7 @@ function TimelineCard({ item }: { item: ProgramItem }) {
           </span>
         </div>
         <p className="mt-3 text-[16px] font-medium leading-6 text-[#434656]">{item.place}</p>
-        <Link href="/contact" className="mt-4 inline-flex items-center gap-2 text-[14px] font-semibold text-[#0558F6] hover:opacity-85">
+        <Link href={`/contact?atelier=${item.id}`} className="mt-4 inline-flex items-center gap-2 text-[14px] font-semibold text-[#0558F6] hover:opacity-85">
           <MapLinkIcon />
           Voir sur la carte
         </Link>
@@ -153,21 +141,60 @@ function TimelineCard({ item }: { item: ProgramItem }) {
 export function MonProgrammeClient() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const activitiesParam = searchParams.get("activities");
+
   const links = useMemo(() => {
     if (user) {
-      return [...baseLinks, { href: "/organisateur", label: "Espace organisateur" }, { href: "/app/dashboard", label: "Dashboard" }];
+      return [
+        ...baseLinks,
+        { href: "/organisateur", label: "Espace organisateur" },
+        { href: "/app/dashboard", label: "Dashboard" },
+      ];
     }
     return baseLinks;
   }, [user]);
+
+  const selectedIds = useMemo(() => {
+    const resolved = resolveProgrammeSelection(activitiesParam);
+    if (resolved.length > 0) {
+      return resolved;
+    }
+    return defaultProgrammeActivityIds;
+  }, [activitiesParam]);
+
+  const selectedActivities = useMemo(() => {
+    return selectedIds
+      .map((activityId) => getProgrammeActivityById(activityId))
+      .filter((activity): activity is ProgrammeActivity => activity !== null);
+  }, [selectedIds]);
+
+  const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+
+  const suggestedActivity = useMemo(() => {
+    return programmeActivities.find((activity) => !selectedIdSet.has(activity.id)) ?? null;
+  }, [selectedIdSet]);
+
+  const rewardGoal = 5;
+  const remainingForReward = Math.max(0, rewardGoal - selectedActivities.length);
 
   async function handleSignOut() {
     if (auth) {
       await signOut(auth);
     }
     router.push("/");
+  }
+
+  function handleAddActivity(activityId: ProgrammeActivityId) {
+    const nextSelection = normalizeProgrammeActivityIds([...selectedIds, activityId]);
+    writeProgrammeSelectionToStorage(nextSelection);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("activities", nextSelection.join(","));
+    router.push(`/programme/mon-programme?${params.toString()}`);
   }
 
   return (
@@ -241,7 +268,6 @@ export function MonProgrammeClient() {
             )}
           </div>
         </div>
-
       </header>
       <MobileBurgerMenu
         open={menuOpen}
@@ -263,46 +289,71 @@ export function MonProgrammeClient() {
               <p className="text-[16px] font-medium leading-6">Programme cree!</p>
             </div>
 
-            <div className="relative mt-8 space-y-8 pl-9">
-              <div className="absolute bottom-4 left-[11px] top-8 w-[2px] bg-[rgba(5,88,246,0.2)]" aria-hidden />
-              {timelineItems.map((item) => (
-                <TimelineCard key={item.id} item={item} />
-              ))}
-            </div>
+            {selectedActivities.length > 0 ? (
+              <div className="relative mt-8 space-y-8 pl-9">
+                <div className="absolute bottom-4 left-[11px] top-8 w-[2px] bg-[rgba(5,88,246,0.2)]" aria-hidden />
+                {selectedActivities.map((item) => (
+                  <TimelineCard key={item.id} item={item} />
+                ))}
+              </div>
+            ) : (
+              <div className="mt-8 rounded-[24px] border border-[#E0E0E0] bg-white p-5">
+                <p className="text-[16px] font-semibold text-[#1C1B1B]">Aucune activite selectionnee</p>
+                <p className="mt-2 text-[14px] leading-5 text-[#6F7281]">
+                  Retourne dans la page Programme et appuie sur + pour ajouter tes ateliers.
+                </p>
+                <Link
+                  href="/programme"
+                  className="mt-4 inline-flex rounded-full bg-[#0558F6] px-5 py-2 text-[14px] font-semibold text-white"
+                >
+                  Choisir mes activites
+                </Link>
+              </div>
+            )}
           </section>
 
           <aside className="mt-8 lg:mt-2">
             <h2 className="text-[18px] font-bold leading-7 text-[#1C1B1B]">Suggestion pour toi</h2>
 
-            <article className="mt-5 rounded-[32px] bg-[#0558F6] p-5 text-white">
-              <p className="text-[14px] font-bold leading-5 text-[#F2F2F2]">14h00 - 15h30</p>
-              <div className="mt-1 flex items-center justify-between gap-3">
-                <div>
-                  <h3 className="text-[18px] font-bold leading-7 text-[#FCF9F8]">Boxe initiation</h3>
-                  <p className="mt-2 text-[14px] font-medium leading-5 text-[#E0E0E0]">Ring exterieur</p>
+            {suggestedActivity ? (
+              <article className="mt-5 rounded-[32px] bg-[#0558F6] p-5 text-white">
+                <p className="text-[14px] font-bold leading-5 text-[#F2F2F2]">{suggestedActivity.timeRange}</p>
+                <div className="mt-1 flex items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-[18px] font-bold leading-7 text-[#FCF9F8]">{suggestedActivity.title}</h3>
+                    <p className="mt-2 text-[14px] font-medium leading-5 text-[#E0E0E0]">{suggestedActivity.place}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleAddActivity(suggestedActivity.id)}
+                    className="inline-flex h-11 items-center justify-center rounded-full border-2 border-white bg-white px-6 text-[14px] font-bold text-[#FF5C29]"
+                  >
+                    Ajouter
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className="inline-flex h-11 items-center justify-center rounded-full border-2 border-white bg-white px-6 text-[14px] font-bold text-[#FF5C29]"
-                >
-                  Ajouter
-                </button>
-              </div>
-            </article>
+              </article>
+            ) : (
+              <article className="mt-5 rounded-[24px] border border-[#E0E0E0] bg-white p-5 text-[#1C1B1B]">
+                Toutes les activites disponibles sont deja ajoutees.
+              </article>
+            )}
 
-            <article className="mt-5 rounded-[12px] bg-[#FF5C29] px-4 pt-4 pb-3">
+            <article className="mt-5 rounded-[12px] bg-[#FF5C29] px-4 pb-3 pt-4">
               <div className="flex items-start gap-2">
                 <span className="text-[14px] font-bold uppercase leading-[20px] text-[#0A0A0A]">Trophee</span>
                 <p className="text-[14px] font-medium leading-[19.6px] text-white">
-                  Plus que 2 activites pour ta recompense exclusive Up Sport!
+                  {remainingForReward > 0
+                    ? `Plus que ${remainingForReward} activites pour ta recompense exclusive Up Sport!`
+                    : "Recompense exclusive debloquee, bravo!"}
                 </p>
               </div>
               <div className="mt-3 flex justify-center gap-1.5">
-                <span className="h-3 w-3 rounded-full bg-[#7F00B1]" />
-                <span className="h-3 w-3 rounded-full bg-[#7F00B1]" />
-                <span className="h-3 w-3 rounded-full bg-[#7F00B1]" />
-                <span className="h-3 w-3 rounded-full bg-[rgba(255,255,255,0.4)]" />
-                <span className="h-3 w-3 rounded-full bg-[rgba(255,255,255,0.4)]" />
+                {Array.from({ length: rewardGoal }).map((_, index) => (
+                  <span
+                    key={index}
+                    className={`h-3 w-3 rounded-full ${index < selectedActivities.length ? "bg-[#7F00B1]" : "bg-[rgba(255,255,255,0.4)]"}`}
+                  />
+                ))}
               </div>
             </article>
           </aside>

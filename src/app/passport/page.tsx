@@ -99,12 +99,9 @@ function HomeIcon({ active }: { active?: boolean }) {
 function PassIcon({ active }: { active?: boolean }) {
   const stroke = active ? "#0558F6" : "#9E9E9E";
   return (
-    <svg viewBox="0 0 22 22" className="h-[22px] w-[22px]" fill="none" stroke={stroke} strokeWidth="1.8">
-      <rect x="2.5" y="3.5" width="17" height="15" rx="2.5" />
-      <path d="M12.5 3.5v15" />
-      <circle cx="15.8" cy="8.5" r="0.7" fill={stroke} stroke="none" />
-      <circle cx="15.8" cy="11" r="0.7" fill={stroke} stroke="none" />
-      <circle cx="15.8" cy="13.5" r="0.7" fill={stroke} stroke="none" />
+    <svg viewBox="0 0 22 22" className="h-6 w-6" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 6.5h16v2.3a2 2 0 0 1 0 4.4V15.5H3v-2.3a2 2 0 0 0 0-4.4V6.5Z" />
+      <path d="M12 6.5v2M12 10.2v1.6M12 13.5v2" />
     </svg>
   );
 }

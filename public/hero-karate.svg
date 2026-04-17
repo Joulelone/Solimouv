@@ -1,0 +1,37 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="900" fill="#6D5AA7"/>
+  <rect y="580" width="1440" height="320" fill="#FADDDD"/>
+
+  <g transform="translate(560 120)">
+    <ellipse cx="160" cy="70" rx="48" ry="54" fill="#BF7B4E"/>
+    <path d="M111 73C114 39 132 18 164 16C195 14 216 31 211 73C202 54 176 47 155 49C141 50 124 56 111 73Z" fill="#2D1A1A"/>
+    <path d="M206 100C230 130 242 166 234 205L199 195C202 170 195 145 178 124L206 100Z" fill="#2D1A1A"/>
+
+    <path d="M120 130L228 148L208 282L94 263L120 130Z" fill="#5D33B0"/>
+    <path d="M145 150L187 157L171 259L128 252L145 150Z" fill="#6D43C5"/>
+
+    <path d="M88 165L8 105L-20 141L60 205L88 165Z" fill="#5D33B0"/>
+    <path d="M-18 140L-82 103L-104 134L-40 171L-18 140Z" fill="#BF7B4E"/>
+
+    <path d="M233 170L332 182L326 226L227 214L233 170Z" fill="#5D33B0"/>
+    <path d="M326 182L390 189L386 221L322 214L326 182Z" fill="#BF7B4E"/>
+
+    <path d="M120 278L194 294L182 465L116 452L120 278Z" fill="#5D33B0"/>
+    <path d="M188 294L252 306L334 456L281 469L188 294Z" fill="#5D33B0"/>
+
+    <path d="M116 452L183 464L186 542L122 540L116 452Z" fill="#5D33B0"/>
+    <path d="M282 468L334 456L378 516L326 542L282 468Z" fill="#5D33B0"/>
+
+    <rect x="124" y="282" width="96" height="24" rx="6" fill="#341E62"/>
+    <rect x="148" y="300" width="50" height="92" rx="10" fill="#2A184F"/>
+  </g>
+
+  <rect width="1440" height="900" fill="url(#vignette)" fill-opacity="0.2"/>
+
+  <defs>
+    <radialGradient id="vignette" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(720 460) rotate(90) scale(540 880)">
+      <stop stop-color="white" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000814"/>
+    </radialGradient>
+  </defs>
+</svg>

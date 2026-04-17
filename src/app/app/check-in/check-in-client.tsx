@@ -457,6 +457,16 @@ export function CheckInClient() {
     setScanInput("");
   }
 
+  async function handleDetectedValidate() {
+    if (!targetUserId) {
+      setScannerError("Aucun code detecte a valider.");
+      return;
+    }
+
+    setScannerError(null);
+    await validateParticipant(targetUserId);
+  }
+
   async function handleSignOut() {
     if (auth) {
       await signOut(auth);
@@ -603,7 +613,19 @@ export function CheckInClient() {
           </div>
 
           {targetUserId ? (
-            <p className="mt-2 text-[11px] text-[rgba(255,255,255,0.4)]">Code detecte: {maskUid(targetUserId)}</p>
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <p className="text-[11px] text-[rgba(255,255,255,0.4)]">Code detecte: {maskUid(targetUserId)}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  void handleDetectedValidate();
+                }}
+                disabled={saving}
+                className="inline-flex h-7 items-center rounded-full border border-[#0558F6] px-3 text-[11px] font-semibold text-[#80B1FF] disabled:opacity-50"
+              >
+                {saving ? "Validation..." : "Valider ce participant"}
+              </button>
+            </div>
           ) : null}
 
           {scannerError ? (

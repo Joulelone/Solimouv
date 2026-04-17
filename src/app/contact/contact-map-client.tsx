@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
+import { MobileBurgerMenu } from "@/components/mobile-burger-menu";
 import { auth } from "@/lib/firebase";
 
 type NearbyStand = {
@@ -334,48 +335,14 @@ export default function ContactMapClient() {
           </div>
         </div>
 
-        {menuOpen ? (
-          <div className="border-t border-[#E0E0E0] bg-white px-5 py-4 lg:hidden">
-            <ul className="space-y-1">
-              {links.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className={`block rounded-xl px-3 py-2 text-sm font-medium ${
-                      pathname === link.href ? "bg-[#F2F2F2] text-[#0558F6]" : "text-[#111111]"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-4 border-t border-[#E0E0E0] pt-4">
-              {user ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    void handleSignOut();
-                  }}
-                  className="rounded-full border border-[#D1D5DB] px-4 py-2 text-sm font-semibold text-[#111111]"
-                >
-                  Se deconnecter
-                </button>
-              ) : (
-                <Link
-                  href="/login"
-                  onClick={() => setMenuOpen(false)}
-                  className="inline-flex rounded-full border border-[#D1D5DB] px-4 py-2 text-sm font-semibold text-[#111111]"
-                >
-                  Connexion
-                </Link>
-              )}
-            </div>
-          </div>
-        ) : null}
       </header>
+      <MobileBurgerMenu
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        organizerHref={user ? "/organisateur" : "/login"}
+        isAuthenticated={Boolean(user)}
+        onSignOut={user ? handleSignOut : undefined}
+      />
 
       <main className="relative pb-[72px] lg:pb-0">
         <section className="relative h-[calc(100vh-104px-72px)] min-h-[620px] overflow-hidden lg:h-[calc(100vh-92px)] lg:min-h-[700px]">

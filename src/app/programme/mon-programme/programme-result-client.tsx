@@ -8,23 +8,11 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { auth } from "@/lib/firebase";
 
-type FilterId =
-  | "all"
-  | "morning"
-  | "afternoon"
-  | "evening"
-  | "beginner"
-  | "handisport"
-  | "family";
-
-type Activity = {
+type ProgramItem = {
   id: string;
   time: string;
   title: string;
   place: string;
-  badge: string;
-  badgeColor: string;
-  tags: FilterId[];
 };
 
 const baseLinks = [
@@ -36,65 +24,20 @@ const baseLinks = [
   { href: "/passport", label: "Mon passeport" },
 ];
 
-const filters: Array<{ id: FilterId; label: string }> = [
-  { id: "all", label: "Tout" },
-  { id: "morning", label: "Matin" },
-  { id: "afternoon", label: "Apres-midi" },
-  { id: "evening", label: "Soir" },
-  { id: "beginner", label: "Debutants" },
-  { id: "handisport", label: "Handisport" },
-  { id: "family", label: "Famille" },
-];
-
-const activities: Activity[] = [
+const timelineItems: ProgramItem[] = [
   {
-    id: "badminton",
-    time: "10h00",
-    title: "Badminton decouverte",
-    place: "Club Elan Nord - Terrain B",
-    badge: "Debutants bienvenus",
-    badgeColor: "bg-[#0558f6]",
-    tags: ["morning", "beginner"],
+    id: "badminton-double",
+    time: "10h00 - 11h00",
+    title: "Badminton en double",
+    place: "Gymnase Jean Jaures",
   },
   {
-    id: "yoga",
-    time: "11h30",
-    title: "Yoga & mobilite",
-    place: "Zen Ensemble - Espace vert",
-    badge: "Tous niveaux",
-    badgeColor: "bg-[#05ad56]",
-    tags: ["morning"],
-  },
-  {
-    id: "basket",
-    time: "14h00",
-    title: "Basket initiation",
-    place: "Gym Quartier Libre - Salle couverte",
-    badge: "Initiation",
-    badgeColor: "bg-[#ff5c29]",
-    tags: ["afternoon", "beginner"],
-  },
-  {
-    id: "velo",
-    time: "15h30",
-    title: "Velo adapte",
-    place: "Roues pour Tous - Allee principale",
-    badge: "Handisport",
-    badgeColor: "bg-[#7f00b1]",
-    tags: ["afternoon", "handisport"],
-  },
-  {
-    id: "natation",
-    time: "16h00",
-    title: "Natation libre",
-    place: "Aqua Solidaire - Piscine",
-    badge: "Famille",
-    badgeColor: "bg-[#ff8da4]",
-    tags: ["evening", "family"],
+    id: "yoga-flow",
+    time: "11h30 - 12h30",
+    title: "Yoga Flow",
+    place: "Parc Central, Zone B",
   },
 ];
-
-const defaultSelectedIds = new Set(["badminton", "yoga"]);
 
 function MobileMenuIcon() {
   return (
@@ -151,61 +94,79 @@ function MapIcon({ active }: { active?: boolean }) {
   );
 }
 
-function PlusIcon() {
+function CheckCircleIcon() {
   return (
-    <svg viewBox="0 0 18 18" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M9 3v12M3 9h12" />
+    <svg viewBox="0 0 20 20" className="h-5 w-5 shrink-0" fill="none" aria-hidden>
+      <circle cx="10" cy="10" r="10" fill="#FFFFFF" />
+      <path d="m6.2 10.2 2.4 2.4 5.2-5.3" stroke="#0558F6" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function CheckIcon() {
+function AddedCheckIcon() {
   return (
-    <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="m3.5 8.2 2.8 2.8 6.2-6.4" />
+    <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" aria-hidden>
+      <path d="m2.2 6.3 2.2 2.1 5-5" stroke="#006D34" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-export function ProgrammeClient() {
+function MapLinkIcon() {
+  return (
+    <svg viewBox="0 0 14 14" className="h-[14px] w-[14px]" fill="none" aria-hidden>
+      <path d="M1.4 2.8 5 1.4l3 1.4 3.8-1.4v9.8L8 12.6l-3-1.4-3.6 1.4V2.8Z" stroke="#0558F6" strokeWidth="1.2" />
+      <path d="M5 1.4v9.8M8 2.8v9.8" stroke="#0558F6" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+function TimelineCard({ item }: { item: ProgramItem }) {
+  return (
+    <div className="relative">
+      <div className="absolute -left-[30px] top-6 flex h-6 w-6 items-center justify-center rounded-full border-4 border-[#F6F3F2] bg-[#0558F6]">
+        <span className="h-2 w-2 rounded-full bg-white" />
+      </div>
+      <article className="rounded-[28px] bg-[#FCF9F8] p-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[14px] font-semibold leading-5 text-[#0558F6]">{item.time}</p>
+            <h3 className="mt-1 text-[20px] font-semibold leading-6 text-[#1C1B1B]">
+              {item.title}
+            </h3>
+          </div>
+          <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(0,109,52,0.1)] px-3 py-1 text-xs font-bold text-[#006D34]">
+            Ajoute
+            <AddedCheckIcon />
+          </span>
+        </div>
+        <p className="mt-3 text-[16px] font-medium leading-6 text-[#434656]">{item.place}</p>
+        <Link href="/contact" className="mt-4 inline-flex items-center gap-2 text-[14px] font-semibold text-[#0558F6] hover:opacity-85">
+          <MapLinkIcon />
+          Voir sur la carte
+        </Link>
+      </article>
+    </div>
+  );
+}
+
+export function MonProgrammeClient() {
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<FilterId>("all");
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set(defaultSelectedIds));
 
-  const links = user
-    ? [...baseLinks, { href: "/organisateur", label: "Espace organisateur" }, { href: "/app/dashboard", label: "Dashboard" }]
-    : baseLinks;
-
-  const filteredActivities = useMemo(() => {
-    if (activeFilter === "all") {
-      return activities;
+  const links = useMemo(() => {
+    if (user) {
+      return [...baseLinks, { href: "/organisateur", label: "Espace organisateur" }, { href: "/app/dashboard", label: "Dashboard" }];
     }
-    return activities.filter((activity) => activity.tags.includes(activeFilter));
-  }, [activeFilter]);
-
-  const selectedCount = selectedIds.size;
-  const remaining = Math.max(0, 3 - selectedCount);
+    return baseLinks;
+  }, [user]);
 
   async function handleSignOut() {
     if (auth) {
       await signOut(auth);
     }
     router.push("/");
-  }
-
-  function toggleActivity(id: string) {
-    setSelectedIds((current) => {
-      const next = new Set(current);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
   }
 
   return (
@@ -238,7 +199,7 @@ export function ProgrammeClient() {
           <nav className="min-w-0 flex-1" aria-label="Navigation principale">
             <ul className="flex items-center gap-1 overflow-x-auto pb-1 text-sm">
               {links.map((link) => {
-                const active = pathname === link.href;
+                const active = pathname === link.href || (pathname.startsWith("/programme/") && link.href === "/programme");
                 return (
                   <li key={link.href} className="shrink-0">
                     <Link
@@ -283,22 +244,21 @@ export function ProgrammeClient() {
         {menuOpen ? (
           <div className="border-t border-[#E0E0E0] bg-white px-5 py-4 lg:hidden">
             <ul className="space-y-1">
-              {links.map((link) => {
-                const active = pathname === link.href;
-                return (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      onClick={() => setMenuOpen(false)}
-                      className={`block rounded-xl px-3 py-2 text-sm font-medium ${
-                        active ? "bg-[#F2F2F2] text-[#0558F6]" : "text-[#111111]"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                );
-              })}
+              {links.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`block rounded-xl px-3 py-2 text-sm font-medium ${
+                      pathname === link.href || (pathname.startsWith("/programme/") && link.href === "/programme")
+                        ? "bg-[#F2F2F2] text-[#0558F6]"
+                        : "text-[#111111]"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
             <div className="mt-4 border-t border-[#E0E0E0] pt-4">
               {user ? (
@@ -326,97 +286,63 @@ export function ProgrammeClient() {
         ) : null}
       </header>
 
-      <section className="border-b border-[#e0e0e0] bg-[#f2f2f2] px-5 py-2 lg:px-8 xl:px-12">
-        <h1 className="text-[20px] font-bold leading-[30px] lg:text-[34px] lg:leading-[38px]">Programme</h1>
-        <p className="mt-1 text-[13px] leading-[19.5px] text-[#9e9e9e]">Choisis tes activites</p>
-      </section>
+      <main className="px-5 pb-8 pt-6 lg:px-8 xl:px-12">
+        <div className="mx-auto w-full max-w-[1260px] lg:grid lg:grid-cols-[1.08fr_0.92fr] lg:gap-10">
+          <section>
+            <h1 className="text-[28px] font-semibold leading-[42px] tracking-[-0.7px] text-[#1C1B1B] lg:text-[36px] lg:leading-[44px]">
+              Ton programme - 14 juin
+            </h1>
 
-      <section className="overflow-x-auto bg-[#f2f2f2] px-5 py-4 lg:px-8 xl:px-12">
-        <ul className="flex w-max gap-2 lg:w-full lg:flex-wrap">
-          {filters.map((filter) => {
-            const active = activeFilter === filter.id;
-            return (
-              <li key={filter.id}>
-                <button
-                  type="button"
-                  onClick={() => setActiveFilter(filter.id)}
-                  className={`h-9 whitespace-nowrap rounded-full border px-4 text-[13px] font-medium ${
-                    active
-                      ? "border-[#0558f6] bg-[#0558f6] text-white"
-                      : "border-[#e0e0e0] bg-white text-[#9e9e9e]"
-                  }`}
-                >
-                  {filter.label}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+            <div className="mt-6 flex items-center gap-3 rounded-[32px] bg-[#0558F6] px-4 py-4 text-white shadow-[0px_8px_24px_-8px_rgba(5,88,246,0.4)]">
+              <CheckCircleIcon />
+              <p className="text-[16px] font-medium leading-6">Programme cree!</p>
+            </div>
 
-      <section className="bg-[#ff5c29] px-5 py-3 text-center text-white lg:px-8 xl:px-12">
-        <p className="text-[16px] font-medium leading-[19.5px]">{selectedCount} activites selectionnees.</p>
-        <p className="text-[16px] font-medium leading-[19.5px]">
-          {remaining > 0 ? `Encore ${remaining} pour obtenir ta recompense` : "Recompense debloquee, bravo !"}
-        </p>
-      </section>
+            <div className="relative mt-8 space-y-8 pl-9">
+              <div className="absolute bottom-4 left-[11px] top-8 w-[2px] bg-[rgba(5,88,246,0.2)]" aria-hidden />
+              {timelineItems.map((item) => (
+                <TimelineCard key={item.id} item={item} />
+              ))}
+            </div>
+          </section>
 
-      <section className="bg-[#f2f2f2] px-5 pb-5 pt-5 lg:px-8 xl:px-12">
-        <div className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">
-          {filteredActivities.map((activity) => {
-            const selected = selectedIds.has(activity.id);
-            return (
-              <article
-                key={activity.id}
-                className={`flex min-h-[98px] items-center gap-3 rounded-[20px] p-[15px] ${
-                  selected ? "border-2 border-[#0558f6] bg-[#f0f5ff]" : "border border-[#e0e0e0] bg-white"
-                }`}
-              >
-                <p className={`w-12 shrink-0 text-[14px] font-bold leading-[21px] lg:text-[16px] ${selected ? "text-[#0558f6]" : "text-[#9e9e9e]"}`}>
-                  {activity.time}
-                </p>
+          <aside className="mt-8 lg:mt-2">
+            <h2 className="text-[18px] font-bold leading-7 text-[#1C1B1B]">Suggestion pour toi</h2>
 
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[14px] font-bold leading-[21px] text-[#111111] lg:text-[18px]">
-                    {activity.title}
-                  </p>
-                  <p className="mt-1 truncate text-[12px] leading-[18px] text-[#9e9e9e]">{activity.place}</p>
-                  <span className={`mt-2 inline-flex h-[20px] items-center rounded-full px-2 text-[11px] font-medium text-white ${activity.badgeColor}`}>
-                    {activity.badge}
-                  </span>
+            <article className="mt-5 rounded-[32px] bg-[#0558F6] p-5 text-white">
+              <p className="text-[14px] font-bold leading-5 text-[#F2F2F2]">14h00 - 15h30</p>
+              <div className="mt-1 flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-[18px] font-bold leading-7 text-[#FCF9F8]">Boxe initiation</h3>
+                  <p className="mt-2 text-[14px] font-medium leading-5 text-[#E0E0E0]">Ring exterieur</p>
                 </div>
-
                 <button
                   type="button"
-                  onClick={() => toggleActivity(activity.id)}
-                  className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                    selected
-                      ? "border border-[#0558f6] bg-[#0558f6] text-white"
-                      : "border border-[#e0e0e0] bg-white text-[#b8b8b8]"
-                  }`}
-                  aria-label={selected ? `Retirer ${activity.title}` : `Ajouter ${activity.title}`}
+                  className="inline-flex h-11 items-center justify-center rounded-full border-2 border-white bg-white px-6 text-[14px] font-bold text-[#FF5C29]"
                 >
-                  {selected ? <CheckIcon /> : <PlusIcon />}
+                  Ajouter
                 </button>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+              </div>
+            </article>
 
-      <section className="border-t border-[#e0e0e0] bg-[#f2f2f2] px-5 pb-5 pt-3 lg:px-8 xl:px-12">
-        <div className="mx-auto w-full lg:mx-0 lg:max-w-[480px]">
-          <Link
-            href="/programme/mon-programme"
-            className="inline-flex h-[52px] w-full items-center justify-center rounded-full bg-[#0558f6] text-[16px] font-medium leading-6 text-white"
-          >
-            {"Creer mon programme ->"}
-          </Link>
-          <p className="mt-2 text-center text-[11px] leading-[16.5px] text-[#9e9e9e]">
-            {selectedCount} activites - modifiable a tout moment
-          </p>
+            <article className="mt-5 rounded-[12px] bg-[#FF5C29] px-4 pt-4 pb-3">
+              <div className="flex items-start gap-2">
+                <span className="text-[14px] font-bold uppercase leading-[20px] text-[#0A0A0A]">Trophee</span>
+                <p className="text-[14px] font-medium leading-[19.6px] text-white">
+                  Plus que 2 activites pour ta recompense exclusive Up Sport!
+                </p>
+              </div>
+              <div className="mt-3 flex justify-center gap-1.5">
+                <span className="h-3 w-3 rounded-full bg-[#7F00B1]" />
+                <span className="h-3 w-3 rounded-full bg-[#7F00B1]" />
+                <span className="h-3 w-3 rounded-full bg-[#7F00B1]" />
+                <span className="h-3 w-3 rounded-full bg-[rgba(255,255,255,0.4)]" />
+                <span className="h-3 w-3 rounded-full bg-[rgba(255,255,255,0.4)]" />
+              </div>
+            </article>
+          </aside>
         </div>
-      </section>
+      </main>
 
       <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#e0e0e0] bg-white lg:hidden">
         <ul className="mx-auto flex h-[72px] w-full max-w-[640px] items-center justify-between px-[15.7px] sm:px-8">

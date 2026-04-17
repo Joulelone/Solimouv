@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PublicSiteShell } from "@/components/public-site-shell";
 
 export const metadata: Metadata = {
-  title: "Associations partenaires | Solimouv'",
+  title: "Associations partenaires",
   description:
     "Retrouvez les associations partenaires mobilisees autour du sport inclusif a Solimouv'.",
 };

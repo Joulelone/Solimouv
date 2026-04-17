@@ -14,11 +14,53 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://solimouv.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Hackathon TL",
-  description: "Socle MVP PWA avec Next.js et Firebase",
-  applicationName: "Hackathon TL",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Solimouv' - Festival du sport pour tous",
+    template: "%s | Solimouv'",
+  },
+  description:
+    "PWA officielle du festival Solimouv' par Up Sport! : programme, associations partenaires, informations et parcours participant.",
+  applicationName: "Solimouv'",
   manifest: "/manifest.webmanifest",
+  keywords: [
+    "Solimouv",
+    "Up Sport",
+    "festival sport inclusif",
+    "sport pour tous",
+    "PWA",
+    "Paris",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "Solimouv'",
+    title: "Solimouv' - Festival du sport pour tous",
+    description:
+      "Decouvrez le festival Solimouv', ses ateliers inclusifs et les associations partenaires.",
+    images: [
+      {
+        url: "/icon-512.png",
+        width: 512,
+        height: 512,
+        alt: "Logo Solimouv'",
+      },
+    ],
+    locale: "fr_FR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Solimouv' - Festival du sport pour tous",
+    description:
+      "PWA du festival Solimouv' : programme, partenaires et informations pratiques.",
+    images: ["/icon-512.png"],
+  },
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -30,7 +72,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Hackathon TL",
+    title: "Solimouv'",
   },
 };
 

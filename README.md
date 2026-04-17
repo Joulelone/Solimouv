@@ -1,99 +1,81 @@
-# Solimouv - Socle PWA MVP
+# Solimouv' - PWA festival sport inclusif
 
-Socle technique minimal pour le hackathon, base sur `Next.js 16 + Firebase` avec PWA installable.
+Application web progressive (PWA) pour presenter le festival Solimouv', Up Sport! et les associations partenaires, avec un mode evenement (passeport + check-in).
 
-## Objectif du repo
+## Objectif
 
-Ce repo couvre les attendus obligatoires cote dev:
+Fournir un socle **livrable client** couvrant les besoins:
 
-- PWA installable, responsive et deployable
-- pages SM-1: Accueil, A propos, Programme/Ateliers, Associations partenaires, Contact
-- base d'authentification Firebase (Google + email/mot de passe)
-- base Firestore (items utilisateur)
-- mode evenement MVP: passeport QR participant + check-in stands + progression
-- structure claire et instructions de reproduction
+- **SM-1**: PWA de communication (installable, responsive, navigation fluide)
+- **SM-2**: SEO et referencement naturel
+- **SM-4**: documentation et livraison autonome
 
-## Stack
+## Stack technique
 
-- Next.js `16.2.3` (App Router)
-- React `19`
-- TypeScript
-- Tailwind CSS `4`
+- Next.js 16 (App Router)
+- React 19 + TypeScript
+- Tailwind CSS 4
 - Firebase Auth + Firestore
+- Service Worker custom + Manifest
 
-## Structure
+## Pages principales
 
-```text
-src/
-  app/
-    layout.tsx
-    manifest.ts
-    page.tsx
-    a-propos/page.tsx
-    programme/page.tsx
-    associations/page.tsx
-    contact/page.tsx
-    offline/page.tsx
-    login/page.tsx
-    app/
-      layout.tsx
-      dashboard/page.tsx
-      passport/page.tsx
-      check-in/page.tsx
-      items/page.tsx
-      settings/page.tsx
-  components/
-    auth-provider.tsx
-    auth-guard.tsx
-    app-shell.tsx
-    pwa-register.tsx
-  hooks/
-    use-user-items.ts
-  lib/
-    firebase.ts
-public/
-  sw.js
-  icon-192.png
-  icon-512.png
-firestore.rules
-```
+- `/` Accueil
+- `/a-propos` A propos (Up Sport! + Solimouv')
+- `/programme` Programme / ateliers
+- `/associations` Associations partenaires
+- `/contact` Contact
+- `/passport` Passeport participant (mode evenement)
+- `/check-in` Check-in stand (mode evenement)
 
-## Mode evenement (MVP)
+## Couverture des exigences
 
-- Chaque participant connecte dispose d'un QR personnel dans `/passport`
-- Les animateurs de stand scannent ce QR avec un telephone et ouvrent la page `/check-in?user=...`
-- L'animateur selectionne son stand puis valide la participation
-- La progression est visible en temps reel sur le passeport participant
-- Quand tous les stands sont valides, le message de lot est debloque
+### SM-1 - PWA communication
 
-## Setup local
+- Manifest: `src/app/manifest.ts`
+- Service worker: `public/sw.js`
+- Enregistrement SW: `src/components/pwa-register.tsx`
+- Offline fallback: `src/app/offline/page.tsx`
+- UI mobile-first + desktop responsive
 
-### 1. Installation
+### SM-2 - SEO
+
+- Metadata globales + Open Graph + Twitter: `src/app/layout.tsx`
+- Metadata par page: `src/app/*/page.tsx`
+- Sitemap: `src/app/sitemap.ts`
+- Robots: `src/app/robots.ts`
+- Donnees structurees Schema.org (Organization + Event): `src/app/page.tsx`
+
+### SM-4 - Livraison client
+
+- Guide d'utilisation organisateurs: `docs/01-guide-utilisation-organisateurs.md`
+- Documentation technique: `docs/02-documentation-technique.md`
+- Inventaire contenus/assets: `docs/03-inventaire-contenus-assets.md`
+- Workflow Git et livraison: `docs/04-workflow-git-livraison.md`
+
+## Installation locale
+
+### 1) Installer les dependances
 
 ```bash
 npm install
 ```
 
-### 2. Variables d'environnement
+### 2) Configurer les variables
 
-Copie `.env.example` vers `.env.local` puis renseigne:
+Copier `.env.example` vers `.env.local` puis renseigner:
 
-```bash
+```env
 NEXT_PUBLIC_FIREBASE_API_KEY=
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
+NEXT_PUBLIC_SITE_URL=
 ```
 
-### 3. Firebase
-
-- activer `Authentication` (Google + Email/Password)
-- creer une base `Firestore`
-- publier les regles de `firestore.rules`
-
-### 4. Lancement
+### 3) Lancer le projet
 
 ```bash
 npm run dev
@@ -108,43 +90,37 @@ npm run build
 npm run start
 ```
 
-## Validation des obligatoires
-
-### Socle PWA minimal
-
-- manifest App Router: `src/app/manifest.ts`
-- service worker: `public/sw.js`
-- page offline: `/offline`
-- metadata PWA: `src/app/layout.tsx`
-
-### Checks a executer avant rendu
+## Checklist de validation avant livraison
 
 ```bash
 npm run lint
 npm run build
 ```
 
-## Deployment (Vercel)
+Puis verifier:
 
-1. Pousser le repo sur GitHub
-2. Importer le projet dans Vercel
-3. Ajouter les variables d'environnement Firebase (meme valeurs que `.env.local`)
+- Installation PWA mobile + desktop
+- Navigation sur toutes les pages SM-1
+- Accessibilite de base (clavier, contraste, lisibilite)
+- SEO technique (meta, sitemap, robots, JSON-LD)
+- Lighthouse mobile > 70
+
+## Workflow Git recommande
+
+Reference complete: `docs/04-workflow-git-livraison.md`
+
+Branches:
+
+- `master` (production)
+- `develop` (integration)
+- `feature/*`, `release/*`, `hotfix/*`
+
+Commits en francais et explicites, puis PR vers `develop`.
+
+## Deploiement (Vercel)
+
+1. Push du repo sur GitHub
+2. Import du projet dans Vercel
+3. Ajout des variables d'environnement
 4. Deploy
-5. Verifier que l'URL publique charge correctement `/`, `/login`, `/app`
-
-## Verification PWA (navigateur)
-
-1. Ouvrir l'URL en production (HTTPS)
-2. Verifier l'installation de l'app (prompt navigateur ou menu "installer")
-3. Ouvrir DevTools > Application:
-   - Manifest detecte
-   - Service Worker actif (`/sw.js`)
-4. Passer en mode offline et verifier le fallback `/offline`
-
-## Support non-tech (groupe)
-
-- URL de demo partagee
-- procedure courte:
-  1. Se connecter
-  2. Aller dans Items
-  3. Ajouter/cocher/supprimer un item
+5. Verification fonctionnelle + PWA + SEO

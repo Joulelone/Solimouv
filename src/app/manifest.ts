@@ -2,14 +2,15 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Hackathon TL",
-    short_name: "TL App",
-    description: "Socle PWA Next.js + Firebase pour hackathon",
+    name: "Solimouv' - Festival du sport pour tous",
+    short_name: "Solimouv'",
+    description:
+      "Application officielle du festival Solimouv' par Up Sport! : programme, associations et informations utiles.",
     start_url: "/",
     display: "standalone",
-    background_color: "#020617",
-    theme_color: "#020617",
-    orientation: "portrait",
+    background_color: "#f2f2f2",
+    theme_color: "#0558f6",
+    orientation: "any",
     icons: [
       {
         src: "/icon-192.png",

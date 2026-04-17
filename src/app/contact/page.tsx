@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PublicSiteShell } from "@/components/public-site-shell";
 
 export const metadata: Metadata = {
-  title: "Contact | Solimouv'",
+  title: "Contact",
   description:
     "Contactez l'equipe Solimouv' et Up Sport! pour participer, proposer un partenariat ou poser une question.",
 };

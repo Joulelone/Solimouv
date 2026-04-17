@@ -33,8 +33,7 @@ const baseLinks = [
   { href: "/", label: "Accueil" },
   { href: "/a-propos", label: "A propos" },
   { href: "/programme", label: "Programme" },
-  { href: "/associations", label: "Associations" },
-  { href: "/contact", label: "Contact" },
+  { href: "/contact", label: "Carte" },
   { href: "/passport", label: "Mon passeport" },
 ];
 
@@ -141,7 +140,7 @@ export default function PassportPage() {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const links = useMemo(() => {
     if (user) {
-      return [...baseLinks, { href: "/organisateur", label: "Espace organisateur" }, { href: "/app/dashboard", label: "Dashboard" }];
+      return [...baseLinks, { href: "/organisateur", label: "Espace organisateur" }];
     }
 
     return baseLinks;

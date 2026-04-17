@@ -11,8 +11,7 @@ const baseLinks = [
   { href: "/", label: "Accueil" },
   { href: "/a-propos", label: "A propos" },
   { href: "/programme", label: "Programme" },
-  { href: "/associations", label: "Associations" },
-  { href: "/contact", label: "Contact" },
+  { href: "/contact", label: "Carte" },
   { href: "/passport", label: "Mon passeport" },
 ];
 
@@ -26,7 +25,6 @@ export function SiteHeader() {
     ? [
         ...baseLinks,
         { href: "/organisateur", label: "Espace organisateur" },
-        { href: "/app/dashboard", label: "Dashboard" },
       ]
     : baseLinks;
 
